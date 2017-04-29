@@ -1,0 +1,21 @@
+{
+  "name": "sketch-text-extract",
+  "version": "0.0.1",
+  "description": "node module to extract text information from sketch files (43+)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "sketch",
+    "node",
+    "extract",
+    "text"
+  ],
+  "author": "Benjamin Dobler <benz@richapps.de> (http://www.richapps.de)",
+  "license": "ISC",
+  "dependencies": {
+    "bplist-parser": "^0.1.1",
+    "jszip": "^3.1.3"
+  }
+}
