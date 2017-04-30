@@ -34,7 +34,27 @@ function analyzePageLayers(layer, level, parent) {
             //console.log("Obj ", obj);
             //const parser: = new NSArchiveParser();
             let decodedTextAttributes = parseNSArchive(obj);
+            let fontFamily = decodedTextAttributes.NSAttributes.MSAttributedStringFontAttribute.NSFontDescriptorAttributes.NSFontNameAttribute;
+            let fontSize = decodedTextAttributes.NSAttributes.MSAttributedStringFontAttribute.NSFontDescriptorAttributes.NSFontSizeAttribute;
+            let paragraphSpacing = decodedTextAttributes.NSAttributes.NSParagraphStyle.NSParagraphSpacing;
+            let stringValue = decodedTextAttributes.NSString;
+            let textOpacity = 1;
+            let fontColor = '#000000';
+            if (decodedTextAttributes.NSAttributes && decodedTextAttributes.NSAttributes.NSColor) {
+                const colorArray = decodedTextAttributes.NSAttributes.NSColor.NSRGB.toString().split(' ');
+                const colors = {};
+                colors.red = parseFloat(colorArray[0]);
+                colors.green = parseFloat(colorArray[1]);
+                colors.blue = parseFloat(colorArray[2]);
+                if (colorArray.length > 3) {
+                    textOpacity = parseFloat(colorArray[3]);
+                }
+                fontColor = colorToHex(colors);
+            }
+
             console.log("Decoded ", decodedTextAttributes);
+
+
         });
     }
 
@@ -45,6 +65,26 @@ function analyzePageLayers(layer, level, parent) {
             analyzePageLayers(l, newLevel, layer);
         });
     }
+}
+
+function colorToHex(color) {
+
+    const componentToHex = (c) => {
+        const hex = c.toString(16);
+        return hex.length == 1 ? '0' + hex : hex;
+    };
+
+
+    const rgbToHex = (r, g, b) => {
+        return '#' + componentToHex(r) + componentToHex(g) + componentToHex(b);
+    };
+
+
+    const r = Math.round(color.red * 255);
+    const g = Math.round(color.green * 255);
+    const b = Math.round(color.blue * 255);
+    return rgbToHex(r, g, b);
+
 }
 
 
