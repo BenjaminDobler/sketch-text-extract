@@ -43,6 +43,8 @@ function analyzePageLayers(layer, level, parent) {
             if (err) throw err;
             //console.log("Obj ", obj);
             //const parser: = new NSArchiveParser();
+
+
             let decodedTextAttributes = parseNSArchive(obj);
             if (decodedTextAttributes.NSAttributes.MSAttributedStringFontAttribute) {
                 let fontFamily = decodedTextAttributes.NSAttributes.MSAttributedStringFontAttribute.NSFontDescriptorAttributes.NSFontNameAttribute;
@@ -73,6 +75,7 @@ function analyzePageLayers(layer, level, parent) {
                 fontColor = colorToHex(colors);
                 textObj.color = fontColor;
             }
+            textObj.frame = layer.frame;
 
             textFields.push(textObj);
 
