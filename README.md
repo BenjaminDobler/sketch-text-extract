@@ -3,7 +3,7 @@ extract text information from sketch 43+ files
 
 # Usage
 var extract = require('sketch-text-extract');
-
+```
 extract('pathToSketchFile', (err, result)=>{
     if (err) {
         console.log("Error ", err);
@@ -11,4 +11,4 @@ extract('pathToSketchFile', (err, result)=>{
         console.log("Result ", result);
     }
 });
-
+```
