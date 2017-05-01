@@ -2,15 +2,23 @@ var JSZip = require("jszip");
 var fs = require('fs');
 var bplistParser = require('bplist-parser');
 
-module.exports = function (path) {
+var textFields = [];
+
+module.exports = function (path, cb) {
     console.log("PATH ", path);
     readFile(path)
         .then(readPages)
         .then(analyzePages)
         .then(function (data) {
             console.log("Data ", data);
+            if (cb) {
+                cb(null, textFields);
+            }
         }, function (err) {
             console.log("Error ", err);
+            if (cb) {
+                cb(err, null);
+            }
         });
 
 };
@@ -18,14 +26,16 @@ module.exports = function (path) {
 
 function analyzePages(pages) {
     let analyzedData = pages.map(x => analyzePageLayers(JSON.parse(x), 0, null));
+    console.log("TextFields ", textFields);
 }
 
 function analyzePageLayers(layer, level, parent) {
     //console.log("Analyze ", layer);
     if (layer._class === 'page') {
-
+        console.log("Page ", layer.name);
     } else if (layer._class === 'text') {
-        console.log('Text Found! ');
+        console.log('Text Found! ' + getPath(layer));
+        let textObj = {};
         const archiveData = layer.attributedString.archivedAttributedString._archive;
         const buf = Buffer.from(archiveData, 'base64');
 
@@ -34,10 +44,21 @@ function analyzePageLayers(layer, level, parent) {
             //console.log("Obj ", obj);
             //const parser: = new NSArchiveParser();
             let decodedTextAttributes = parseNSArchive(obj);
-            let fontFamily = decodedTextAttributes.NSAttributes.MSAttributedStringFontAttribute.NSFontDescriptorAttributes.NSFontNameAttribute;
-            let fontSize = decodedTextAttributes.NSAttributes.MSAttributedStringFontAttribute.NSFontDescriptorAttributes.NSFontSizeAttribute;
-            let paragraphSpacing = decodedTextAttributes.NSAttributes.NSParagraphStyle.NSParagraphSpacing;
+            if (decodedTextAttributes.NSAttributes.MSAttributedStringFontAttribute) {
+                let fontFamily = decodedTextAttributes.NSAttributes.MSAttributedStringFontAttribute.NSFontDescriptorAttributes.NSFontNameAttribute;
+                let fontSize = decodedTextAttributes.NSAttributes.MSAttributedStringFontAttribute.NSFontDescriptorAttributes.NSFontSizeAttribute;
+                textObj.fontFamily = fontFamily;
+                textObj.fontSize = fontSize;
+            }
+            if (decodedTextAttributes.NSAttributes.NSParagraphStyle) {
+                let paragraphSpacing = decodedTextAttributes.NSAttributes.NSParagraphStyle.NSParagraphSpacing;
+                textObj.paragraphSpacing = paragraphSpacing;
+
+            }
             let stringValue = decodedTextAttributes.NSString;
+
+            textObj.value = stringValue;
+            textObj.id = getPath(layer);
             let textOpacity = 1;
             let fontColor = '#000000';
             if (decodedTextAttributes.NSAttributes && decodedTextAttributes.NSAttributes.NSColor) {
@@ -50,7 +71,10 @@ function analyzePageLayers(layer, level, parent) {
                     textOpacity = parseFloat(colorArray[3]);
                 }
                 fontColor = colorToHex(colors);
+                textObj.color = fontColor;
             }
+
+            textFields.push(textObj);
 
             console.log("Decoded ", decodedTextAttributes);
 
@@ -62,9 +86,22 @@ function analyzePageLayers(layer, level, parent) {
         const newLevel = level + 1;
         layer.layers.forEach((l) => {
             console.log("--- Layer");
+            l.parent = layer;
             analyzePageLayers(l, newLevel, layer);
         });
     }
+}
+
+function getPath(layer) {
+    let name = layer.name;
+    while (layer.parent) {
+        layer = layer.parent;
+        name += name === '' ? layer.name : '.' + layer.name;
+
+
+    }
+    console.log("LAYER PATH ", layer.name);
+    return name.split('.').reverse().join('.').toUpperCase().split(' ').join('_');
 }
 
 function colorToHex(color) {
