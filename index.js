@@ -35,7 +35,13 @@ function analyzePageLayers(layer, level, parent) {
         console.log("Page ", layer.name);
     } else if (layer._class === 'text') {
         console.log('Text Found! ' + getPath(layer));
+
         let textObj = {};
+        if (parent && parent._class === 'group' && parent.name.indexOf('#txa')) {
+            console.log("Parsent is textarea group! ", parent.name);
+            textObj.textAreaWidth = parent.frame.width;
+            textObj.textAreaHeight = parent.frame.height;
+        }
         const archiveData = layer.attributedString.archivedAttributedString._archive;
         const buf = Buffer.from(archiveData, 'base64');
 
@@ -54,7 +60,14 @@ function analyzePageLayers(layer, level, parent) {
             }
             if (decodedTextAttributes.NSAttributes.NSParagraphStyle) {
                 let paragraphSpacing = decodedTextAttributes.NSAttributes.NSParagraphStyle.NSParagraphSpacing;
+                let maxLineHeight = decodedTextAttributes.NSAttributes.NSParagraphStyle.NSMaxLineHeight;
+                let minLineHeight = decodedTextAttributes.NSAttributes.NSParagraphStyle.NSMinLineHeight;
+                let lineHeight = minLineHeight;
                 textObj.paragraphSpacing = paragraphSpacing;
+                textObj.minLineHeight = minLineHeight;
+                textObj.maxLineHeight = maxLineHeight;
+                textObj.lineHeight = lineHeight;
+
 
             }
             let stringValue = decodedTextAttributes.NSString;
