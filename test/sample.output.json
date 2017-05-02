@@ -1,0 +1,23 @@
+{
+    "strings": [
+        {
+            "textAreaWidth": 300,
+            "textAreaHeight": 200,
+            "fontFamily": "Helvetica'",
+            "fontSize": 16,
+            "paragraphSpacing": 4,
+            "minLineHeight": 20,
+            "maxLineHeight": 20,
+            "lineHeight": 20,
+            "value": "Some Text\nSecond Line Text\nThird Line Text",
+            "id": "PAGE_1.MYGROUP#TXA.TEXTFIELD",
+            "color": "#f5a623",
+            "frame": {
+                "height": 68,
+                "width": 283,
+                "x": 0,
+                "y": 0
+            }
+        }
+    ]
+}
