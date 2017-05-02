@@ -6,6 +6,7 @@ var textFields = [];
 
 module.exports = function (path, cb) {
     console.log("PATH ", path);
+    textFields = [];
     readFile(path)
         .then(readPages)
         .then(analyzePages)
